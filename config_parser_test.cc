@@ -48,3 +48,33 @@ TEST(NginxConfigParserTest, InsignificantWhitespace) {
   EXPECT_EQ(config.statements_[0]->tokens_[0], "foo");
   EXPECT_EQ(config.statements_[0]->tokens_[1], "bar");
 }
+
+TEST(NginxConfigParserTest, NoSemicolon) {
+  NginxConfigParser parser;
+  NginxConfig config;
+
+  std::stringstream test_config_stream("foo bar");
+
+  bool success = parser.Parse(&test_config_stream, &config);
+
+  EXPECT_FALSE(success);
+}
+
+TEST(NginxConfigParserTest, UnexpectedNewline) {
+  NginxConfigParser parser;
+  NginxConfig config;
+
+  std::stringstream test_config_stream("\nfoo bar;");
+
+  bool success = parser.Parse(&test_config_stream, &config);
+
+  EXPECT_TRUE(success);
+
+  // one statement
+  ASSERT_EQ(config.statements_.size(), 1);
+  // two tokens
+  ASSERT_EQ(config.statements_[0]->tokens_.size(), 2);
+
+  EXPECT_EQ(config.statements_[0]->tokens_[0], "foo");
+  EXPECT_EQ(config.statements_[0]->tokens_[1], "bar");
+}
