@@ -88,3 +88,22 @@ TEST_F(NginxConfigParserStringTest, OneLineTwoStatements) {
   EXPECT_EQ(config_.statements_[1]->tokens_[0], "baz");
   EXPECT_EQ(config_.statements_[1]->tokens_[1], "bop");
 }
+
+TEST_F(NginxConfigParserStringTest, ChildStatement) {
+  bool success = parseString("foo {\n\tbar baz;\n}");
+
+  EXPECT_TRUE(success);
+
+  // one statement
+  ASSERT_EQ(config_.statements_.size(), 1);
+  // one token
+  ASSERT_EQ(config_.statements_[0]->tokens_.size(), 1);
+  // child block has one statement
+  ASSERT_EQ(config_.statements_[0]->child_block_->statements_.size(), 1);
+  // child block statement has two tokens
+  ASSERT_EQ(config_.statements_[0]->child_block_->statements_[0]->tokens_.size(), 2);
+
+  EXPECT_EQ(config_.statements_[0]->tokens_[0], "foo");
+  EXPECT_EQ(config_.statements_[0]->child_block_->statements_[0]->tokens_[0], "bar");
+  EXPECT_EQ(config_.statements_[0]->child_block_->statements_[0]->tokens_[1], "baz");
+}
