@@ -107,3 +107,15 @@ TEST_F(NginxConfigParserStringTest, ChildStatement) {
   EXPECT_EQ(config_.statements_[0]->child_block_->statements_[0]->tokens_[0], "bar");
   EXPECT_EQ(config_.statements_[0]->child_block_->statements_[0]->tokens_[1], "baz");
 }
+
+TEST_F(NginxConfigParserStringTest, InvalidChildStatement_NoOpenBrace) {
+  bool success = parseString("foo } bar;");
+
+  EXPECT_FALSE(success);
+}
+
+TEST_F(NginxConfigParserStringTest, InvalidChildStatement_NoCloseBrace) {
+  bool success = parseString("foo { bar;");
+
+  EXPECT_FALSE(success);
+}
