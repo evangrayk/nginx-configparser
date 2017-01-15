@@ -176,3 +176,19 @@ TEST_F(NginxConfigParserStringTest, Comments) {
   EXPECT_EQ(config_.statements_[1]->tokens_[0], "bar");
 
 }
+
+TEST_F(NginxConfigParserStringTest, DoubleQuotes) {
+  bool success = parseString("foo = \"Hello, World!\";");
+
+  EXPECT_TRUE(success);
+
+  // one statement
+  ASSERT_EQ(config_.statements_.size(), 1);
+  // three tokens
+  ASSERT_EQ(config_.statements_[0]->tokens_.size(), 3);
+
+  EXPECT_EQ(config_.statements_[0]->tokens_[0], "foo");
+  EXPECT_EQ(config_.statements_[0]->tokens_[1], "=");
+  EXPECT_EQ(config_.statements_[0]->tokens_[2], "\"Hello, World!\"");
+
+}
