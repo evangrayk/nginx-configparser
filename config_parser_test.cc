@@ -108,6 +108,31 @@ TEST_F(NginxConfigParserStringTest, ChildStatement) {
   EXPECT_EQ(config_.statements_[0]->child_block_->statements_[0]->tokens_[1], "baz");
 }
 
+TEST_F(NginxConfigParserStringTest, NestedChildStatement) {
+  bool success = parseString(
+          "foo {\
+            bar {\
+              hello;\
+            }\
+            baz;\
+          }");
+
+  EXPECT_TRUE(success);
+
+  NginxConfigStatement* fooStatement = &*config_.statements_[0];
+
+  NginxConfigStatement* barStatement = &*fooStatement->child_block_->statements_[0];
+  NginxConfigStatement* bazStatement = &*fooStatement->child_block_->statements_[1];
+
+  NginxConfigStatement* helloStatement = &*barStatement->child_block_->statements_[0];
+
+
+  EXPECT_EQ(fooStatement->tokens_[0], "foo");
+  EXPECT_EQ(barStatement->tokens_[0], "bar");
+  EXPECT_EQ(bazStatement->tokens_[0], "baz");
+  EXPECT_EQ(helloStatement->tokens_[0], "hello");
+}
+
 TEST_F(NginxConfigParserStringTest, InvalidChildStatement_NoOpenBrace) {
   bool success = parseString("foo } bar;");
 
