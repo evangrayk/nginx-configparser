@@ -144,3 +144,35 @@ TEST_F(NginxConfigParserStringTest, InvalidChildStatement_NoCloseBrace) {
 
   EXPECT_FALSE(success);
 }
+
+TEST_F(NginxConfigParserStringTest, ExtraNewline) {
+  bool success = parseString("foo;\n\n\nbar;");
+
+  EXPECT_TRUE(success);
+
+  // two statements
+  ASSERT_EQ(config_.statements_.size(), 2);
+  // one tokens each
+  ASSERT_EQ(config_.statements_[0]->tokens_.size(), 1);
+  ASSERT_EQ(config_.statements_[1]->tokens_.size(), 1);
+
+  EXPECT_EQ(config_.statements_[0]->tokens_[0], "foo");
+  EXPECT_EQ(config_.statements_[1]->tokens_[0], "bar");
+
+}
+
+TEST_F(NginxConfigParserStringTest, Comments) {
+  bool success = parseString("foo; # this is a comment ;; } {\nbar;");
+
+  EXPECT_TRUE(success);
+
+  // two statements
+  ASSERT_EQ(config_.statements_.size(), 2);
+  // one tokens each
+  ASSERT_EQ(config_.statements_[0]->tokens_.size(), 1);
+  ASSERT_EQ(config_.statements_[1]->tokens_.size(), 1);
+
+  EXPECT_EQ(config_.statements_[0]->tokens_[0], "foo");
+  EXPECT_EQ(config_.statements_[1]->tokens_[0], "bar");
+
+}
