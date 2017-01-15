@@ -11,93 +11,80 @@ TEST(NginxConfigParserTest, SimpleConfig) {
   EXPECT_TRUE(success);
 }
 
-TEST(NginxConfigParserTest, StatementParsed) {
-  NginxConfigParser parser;
-  NginxConfig config;
+class NginxConfigParserStringTest : public ::testing::Test {
+    protected:
+        virtual bool parseString(std::string s) {
+            std::stringstream test_config_stream(s);
 
-  std::stringstream test_config_stream("port 8080;");
+            return parser_.Parse(&test_config_stream, &config_);
+        }
 
-  bool success = parser.Parse(&test_config_stream, &config);
+        NginxConfigParser parser_;
+        NginxConfig config_;
+};
 
-  EXPECT_TRUE(success);
-
-  // one statement
-  ASSERT_EQ(config.statements_.size(), 1);
-  // two tokens
-  ASSERT_EQ(config.statements_[0]->tokens_.size(), 2);
-
-  EXPECT_EQ(config.statements_[0]->tokens_[0], "port");
-  EXPECT_EQ(config.statements_[0]->tokens_[1], "8080");
-}
-
-TEST(NginxConfigParserTest, InsignificantWhitespace) {
-  NginxConfigParser parser;
-  NginxConfig config;
-
-  std::stringstream test_config_stream(" \t   foo  \t   bar     ;    \t");
-
-  bool success = parser.Parse(&test_config_stream, &config);
+TEST_F(NginxConfigParserStringTest, StatementParsed) {
+  bool success = parseString("port 8080;");
 
   EXPECT_TRUE(success);
 
   // one statement
-  ASSERT_EQ(config.statements_.size(), 1);
+  ASSERT_EQ(config_.statements_.size(), 1);
   // two tokens
-  ASSERT_EQ(config.statements_[0]->tokens_.size(), 2);
+  ASSERT_EQ(config_.statements_[0]->tokens_.size(), 2);
 
-  EXPECT_EQ(config.statements_[0]->tokens_[0], "foo");
-  EXPECT_EQ(config.statements_[0]->tokens_[1], "bar");
+  EXPECT_EQ(config_.statements_[0]->tokens_[0], "port");
+  EXPECT_EQ(config_.statements_[0]->tokens_[1], "8080");
 }
 
-TEST(NginxConfigParserTest, NoSemicolon) {
-  NginxConfigParser parser;
-  NginxConfig config;
+TEST_F(NginxConfigParserStringTest, InsignificantWhitespace) {
+  bool success = parseString(" \t   foo  \t   bar     ;    \t");
 
-  std::stringstream test_config_stream("foo bar");
+  EXPECT_TRUE(success);
 
-  bool success = parser.Parse(&test_config_stream, &config);
+  // one statement
+  ASSERT_EQ(config_.statements_.size(), 1);
+  // two tokens
+  ASSERT_EQ(config_.statements_[0]->tokens_.size(), 2);
+
+  EXPECT_EQ(config_.statements_[0]->tokens_[0], "foo");
+  EXPECT_EQ(config_.statements_[0]->tokens_[1], "bar");
+}
+
+TEST_F(NginxConfigParserStringTest, NoSemicolon) {
+  bool success = parseString("foo bar");
 
   EXPECT_FALSE(success);
 }
 
-TEST(NginxConfigParserTest, UnexpectedNewline) {
-  NginxConfigParser parser;
-  NginxConfig config;
-
-  std::stringstream test_config_stream("\nfoo bar;");
-
-  bool success = parser.Parse(&test_config_stream, &config);
+TEST_F(NginxConfigParserStringTest, UnexpectedNewline) {
+  bool success = parseString("\nfoo bar;");
 
   EXPECT_TRUE(success);
 
   // one statement
-  ASSERT_EQ(config.statements_.size(), 1);
+  ASSERT_EQ(config_.statements_.size(), 1);
   // two tokens
-  ASSERT_EQ(config.statements_[0]->tokens_.size(), 2);
+  ASSERT_EQ(config_.statements_[0]->tokens_.size(), 2);
 
-  EXPECT_EQ(config.statements_[0]->tokens_[0], "foo");
-  EXPECT_EQ(config.statements_[0]->tokens_[1], "bar");
+  EXPECT_EQ(config_.statements_[0]->tokens_[0], "foo");
+  EXPECT_EQ(config_.statements_[0]->tokens_[1], "bar");
 }
 
-TEST(NginxConfigParserTest, OneLineTwoStatements) {
-  NginxConfigParser parser;
-  NginxConfig config;
-
-  std::stringstream test_config_stream("foo bar; baz bop;");
-
-  bool success = parser.Parse(&test_config_stream, &config);
+TEST_F(NginxConfigParserStringTest, OneLineTwoStatements) {
+  bool success = parseString("foo bar; baz bop;");
 
   EXPECT_TRUE(success);
 
   // two statements
-  ASSERT_EQ(config.statements_.size(), 2);
+  ASSERT_EQ(config_.statements_.size(), 2);
   // two tokens each
-  ASSERT_EQ(config.statements_[0]->tokens_.size(), 2);
-  ASSERT_EQ(config.statements_[1]->tokens_.size(), 2);
+  ASSERT_EQ(config_.statements_[0]->tokens_.size(), 2);
+  ASSERT_EQ(config_.statements_[1]->tokens_.size(), 2);
 
-  EXPECT_EQ(config.statements_[0]->tokens_[0], "foo");
-  EXPECT_EQ(config.statements_[0]->tokens_[1], "bar");
+  EXPECT_EQ(config_.statements_[0]->tokens_[0], "foo");
+  EXPECT_EQ(config_.statements_[0]->tokens_[1], "bar");
 
-  EXPECT_EQ(config.statements_[1]->tokens_[0], "baz");
-  EXPECT_EQ(config.statements_[1]->tokens_[1], "bop");
+  EXPECT_EQ(config_.statements_[1]->tokens_[0], "baz");
+  EXPECT_EQ(config_.statements_[1]->tokens_[1], "bop");
 }
