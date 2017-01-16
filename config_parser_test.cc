@@ -208,3 +208,9 @@ TEST_F(NginxConfigParserStringTest, DoubleQuotesSpecialChars) {
   EXPECT_EQ(config_.statements_[0]->tokens_[2], "\"test \n test; ' } {\"");
 
 }
+
+TEST_F(NginxConfigParserStringTest, InvalidDoubleQuotes) {
+  bool success = parseString("foo = test\"hello;");
+
+  EXPECT_FALSE(success);
+}
