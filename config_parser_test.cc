@@ -24,9 +24,7 @@ class NginxConfigParserStringTest : public ::testing::Test {
 };
 
 TEST_F(NginxConfigParserStringTest, StatementParsed) {
-  bool success = parseString("port 8080;");
-
-  EXPECT_TRUE(success);
+  EXPECT_TRUE(parseString("port 8080;"));
 
   // one statement
   ASSERT_EQ(config_.statements_.size(), 1);
@@ -38,9 +36,7 @@ TEST_F(NginxConfigParserStringTest, StatementParsed) {
 }
 
 TEST_F(NginxConfigParserStringTest, InsignificantWhitespace) {
-  bool success = parseString(" \t   foo  \t   bar     ;    \t");
-
-  EXPECT_TRUE(success);
+  EXPECT_TRUE(parseString(" \t   foo  \t   bar     ;    \t"));
 
   // one statement
   ASSERT_EQ(config_.statements_.size(), 1);
@@ -52,15 +48,11 @@ TEST_F(NginxConfigParserStringTest, InsignificantWhitespace) {
 }
 
 TEST_F(NginxConfigParserStringTest, NoSemicolon) {
-  bool success = parseString("foo bar");
-
-  EXPECT_FALSE(success);
+  EXPECT_FALSE(parseString("foo bar"));
 }
 
 TEST_F(NginxConfigParserStringTest, UnexpectedNewline) {
-  bool success = parseString("\nfoo bar;");
-
-  EXPECT_TRUE(success);
+  EXPECT_TRUE(parseString("\nfoo bar;"));
 
   // one statement
   ASSERT_EQ(config_.statements_.size(), 1);
@@ -72,9 +64,7 @@ TEST_F(NginxConfigParserStringTest, UnexpectedNewline) {
 }
 
 TEST_F(NginxConfigParserStringTest, OneLineTwoStatements) {
-  bool success = parseString("foo bar; baz bop;");
-
-  EXPECT_TRUE(success);
+  EXPECT_TRUE(parseString("foo bar; baz bop;"));
 
   // two statements
   ASSERT_EQ(config_.statements_.size(), 2);
@@ -90,9 +80,7 @@ TEST_F(NginxConfigParserStringTest, OneLineTwoStatements) {
 }
 
 TEST_F(NginxConfigParserStringTest, ChildStatement) {
-  bool success = parseString("foo {\n\tbar baz;\n}");
-
-  EXPECT_TRUE(success);
+  EXPECT_TRUE(parseString("foo {\n\tbar baz;\n}"));
 
   // one statement
   ASSERT_EQ(config_.statements_.size(), 1);
@@ -109,15 +97,13 @@ TEST_F(NginxConfigParserStringTest, ChildStatement) {
 }
 
 TEST_F(NginxConfigParserStringTest, NestedChildStatement) {
-  bool success = parseString(
+  EXPECT_TRUE(parseString(
           "foo {\
             bar {\
               hello;\
             }\
             baz;\
-          }");
-
-  EXPECT_TRUE(success);
+          }"));
 
   NginxConfigStatement* fooStatement = &*config_.statements_[0];
 
@@ -134,21 +120,15 @@ TEST_F(NginxConfigParserStringTest, NestedChildStatement) {
 }
 
 TEST_F(NginxConfigParserStringTest, InvalidChildStatement_NoOpenBrace) {
-  bool success = parseString("foo } bar;");
-
-  EXPECT_FALSE(success);
+  EXPECT_FALSE(parseString("foo } bar;"));
 }
 
 TEST_F(NginxConfigParserStringTest, InvalidChildStatement_NoCloseBrace) {
-  bool success = parseString("foo { bar;");
-
-  EXPECT_FALSE(success);
+  EXPECT_FALSE(parseString("foo { bar;"));
 }
 
 TEST_F(NginxConfigParserStringTest, ExtraNewline) {
-  bool success = parseString("foo;\n\n\nbar;");
-
-  EXPECT_TRUE(success);
+  EXPECT_TRUE(parseString("foo;\n\n\nbar;"));
 
   // two statements
   ASSERT_EQ(config_.statements_.size(), 2);
@@ -162,9 +142,7 @@ TEST_F(NginxConfigParserStringTest, ExtraNewline) {
 }
 
 TEST_F(NginxConfigParserStringTest, Comments) {
-  bool success = parseString("foo; # this is a comment ;; } {\nbar;");
-
-  EXPECT_TRUE(success);
+  EXPECT_TRUE(parseString("foo; # this is a comment ;; } {\nbar;"));
 
   // two statements
   ASSERT_EQ(config_.statements_.size(), 2);
@@ -178,9 +156,7 @@ TEST_F(NginxConfigParserStringTest, Comments) {
 }
 
 TEST_F(NginxConfigParserStringTest, DoubleQuotes) {
-  bool success = parseString("foo = \"Hello, World!\";");
-
-  EXPECT_TRUE(success);
+  EXPECT_TRUE(parseString("foo = \"Hello, World!\";"));
 
   // one statement
   ASSERT_EQ(config_.statements_.size(), 1);
@@ -194,9 +170,7 @@ TEST_F(NginxConfigParserStringTest, DoubleQuotes) {
 }
 
 TEST_F(NginxConfigParserStringTest, DoubleQuotesSpecialChars) {
-  bool success = parseString("foo = \"test \n test; ' } {\";");
-
-  EXPECT_TRUE(success);
+  EXPECT_TRUE(parseString("foo = \"test \n test; ' } {\";"));
 
   // one statement
   ASSERT_EQ(config_.statements_.size(), 1);
@@ -210,7 +184,5 @@ TEST_F(NginxConfigParserStringTest, DoubleQuotesSpecialChars) {
 }
 
 TEST_F(NginxConfigParserStringTest, InvalidDoubleQuotes) {
-  bool success = parseString("foo = test\"hello;");
-
-  EXPECT_FALSE(success);
+  EXPECT_FALSE(parseString("foo = test\"hello;"));
 }
